@@ -10,6 +10,9 @@ Goals:
 
 One of the constant challenges with these variations is the impact on reporting; e.g. if we cannot reliably report on the data, then we lose much of the value. In many cases we have observed distinct testing practices to access the information based on population segmentation.
 
+api
+===
+See http://www.apidoc.me/bryzek/rollout/latest
 
 notes
 =====

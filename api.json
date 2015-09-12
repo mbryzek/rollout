@@ -1,0 +1,45 @@
+{
+    "name": "rollout",
+
+    "info": {
+	"contact": {
+	    "name": "Michael Bryzek",
+	    "email": "mbryzek@alum.mit.edu",
+	    "url": "http://twitter.com/mbryzek"
+	},
+	"license": {
+	    "name": "MIT",
+	    "url": "http://opensource.org/licenses/MIT"
+	}
+    },
+
+    "models": {
+
+	"healthcheck": {
+	    "fields": [
+                { "name": "status", "type": "string", "example": "healthy" }
+	    ]
+	}
+
+    },
+
+    "resources": {
+
+	"healthcheck": {
+	    "path": "/_internal_/healthcheck",
+            "operations": [
+                {
+                    "method": "GET",
+                    "responses": {
+                        "200": { "type": "healthcheck" }
+                    }
+                }
+	    ]
+	}
+
+    }
+
+}
+
+    
+  
