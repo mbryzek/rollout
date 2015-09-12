@@ -110,15 +110,15 @@ downside is that you may take longer to reach significance, esp for features tha
 ### General background for designing the test service
 
   - Every new test is assigned a random key ( a string )
-  - apply murmur3 to the user guid, using the test key as the seed
+  - apply murmur3 to the id, using the test key as the seed
   - Hash to an integer: 0..100 or 0...1000
   - Then you can choose the split, e.g. 0-30 is A, 31-60 is B, 61 - 100 is C
   - For a rollout, you can do 0-10 for test, 11-100 is control. Gradually increase the test
   - Implement as copy on edit so you can see the change in percentages
 
-Reshuffling has to be random and equally distributed - used MurMur3 - back testing to verify distribution
+Reshuffling has to be random and equally distributed - used MurMur3 - back testing to verify distribution for this algorithm.
 
-Key decision is what to use as the identifier - should be a string - device ID? User guid? other? From an API standpoint - just accept a string. The caller will determine what string to pass in.
+Key decision is what to use as the identifier. From an API perspective, we just accept a string. The caller will determine what string to pass in (e.g. pass in a user id, session id, etc. - API doesn't care and things will work as long as caller is consistent).
 
 ## Acknowledgements
 
