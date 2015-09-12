@@ -15,6 +15,43 @@
 
     "models": {
 
+	"test": {
+	    "description": "This models represents a test of some sort for which we are managing traffic. Each test will have 1 or more variants to enable things like test/control.",
+	    "fields": [
+                { "name": "guid", "type": "uuid" },
+                { "name": "key", "type": "string", "description": "A unique, randomly generated string that can be used as a seed into the hashing functions" },
+                { "name": "name", "type": "string", "description": "A human readable name for this test" },
+                { "name": "description", "type": "string", "required": false },
+                { "name": "variants", "type": "[variant]", "description": "The current (at time of request) set of live variants. Look at the allocation model if you would like to find out exactly when each set of variants went live." }
+	    ]
+	},
+
+	"allocation": {
+	    "description": "Each variant represents a percentage of traffic that is allocated randomly for a given test. The sum of the variants will always equal 100 percent",
+	    "fields": [
+                { "name": "guid", "type": "uuid" },
+                { "name": "test", "type": "reference", "description": "The test to which this allocation belongs" },
+		{ "name": "start", "type": "date-time-iso8601", "description": "When this allocation of traffic went live" },
+		{ "name": "end", "type": "date-time-iso8601", "description": "When this allocation of traffic was ended. The most common use case for ending an allocation of traffic is, for example, during an incremetal rollout when traffic patterns are changed. We record each allocation (copy on edit) to enable reporting.", "required": false },
+		{ "name": "variants", "type": "[variant]" }
+	    ]
+	},
+
+	"variant": {
+	    "description": "An individual test variant, mapping a name to a percentage of traffic",
+	    "fields": [
+                { "name": "name", "type": "string", "description": "A human readable name for this variant. The name must be unique within the context of a given test.", "example": "control" },
+                { "name": "percentage", "type": "integer", "minimum": 1, "maximum": 100 }
+	    ]
+	},
+
+        "reference": {
+	    "description": "Wrapper for guids, allowing API to reference another model without including ALL of the details of the referenced model",
+	    "fields": [
+                { "name": "guid", "type": "uuid" }
+	    ]
+	},
+	    
 	"healthcheck": {
 	    "fields": [
                 { "name": "status", "type": "string", "example": "healthy" }
@@ -40,6 +77,3 @@
     }
 
 }
-
-    
-  
