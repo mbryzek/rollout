@@ -22,7 +22,25 @@
                 { "name": "key", "type": "string", "description": "A unique, randomly generated string that can be used as a seed into the hashing functions" },
                 { "name": "name", "type": "string", "description": "A human readable name for this test" },
                 { "name": "description", "type": "string", "required": false },
-                { "name": "variants", "type": "[variant]", "description": "The current (at time of request) set of live variants. Look at the allocation model if you would like to find out exactly when each set of variants went live." }
+                { "name": "variants", "type": "[test_variant]", "description": "The current (at time of request) set of live variants. Look at the allocation model if you would like to find out exactly when each set of variants went live." }
+	    ]
+	},
+
+	"test_create_form": {
+	    "description": "Used to create tests",
+	    "fields": [
+                { "name": "name", "type": "string" },
+                { "name": "description", "type": "string", "required": false },
+                { "name": "variants", "type": "[test_variant]" }
+	    ]
+	},
+
+	"test_update_form": {
+	    "description": "Used to create tests",
+	    "fields": [
+                { "name": "name", "type": "string", "required": false },
+                { "name": "description", "type": "string", "required": false },
+                { "name": "variants", "type": "[test_variant]", "required": false }
 	    ]
 	},
 
@@ -33,15 +51,23 @@
                 { "name": "test", "type": "reference", "description": "The test to which this allocation belongs" },
 		{ "name": "start", "type": "date-time-iso8601", "description": "When this allocation of traffic went live" },
 		{ "name": "end", "type": "date-time-iso8601", "description": "When this allocation of traffic was ended. The most common use case for ending an allocation of traffic is, for example, during an incremetal rollout when traffic patterns are changed. We record each allocation (copy on edit) to enable reporting.", "required": false },
-		{ "name": "variants", "type": "[variant]" }
+		{ "name": "variants", "type": "[test_variant]" }
+	    ]
+	},
+
+	"test_variant": {
+	    "description": "An individual test variant, mapping a name to a percentage of traffic",
+	    "fields": [
+                { "name": "name", "type": "string", "description": "A human readable name for this variant. The name must be unique within the context of a given test allocation. Uniqueness is case insensitive.", "example": "control" },
+                { "name": "percentage", "type": "integer", "minimum": 1, "maximum": 100 }
 	    ]
 	},
 
 	"variant": {
-	    "description": "An individual test variant, mapping a name to a percentage of traffic",
+	    "description": "Represents a fully hydrated specific test variant. This model will be used in almost all requests for live traffic and thus includes references to other objects to minimize size.",
 	    "fields": [
-                { "name": "name", "type": "string", "description": "A human readable name for this variant. The name must be unique within the context of a given test.", "example": "control" },
-                { "name": "percentage", "type": "integer", "minimum": 1, "maximum": 100 }
+		{ "name": "test", "type": "reference", "description": "The test to which this specific variant belongs" },
+		{ "name": "name", "type": "string", "description": "The name of the specific variant" }
 	    ]
 	},
 
@@ -52,6 +78,13 @@
 	    ]
 	},
 	    
+	"error": {
+            "fields": [
+                { "name": "code", "type": "string", "description": "Machine readable code for this specific error message" },
+                { "name": "message", "type": "string", "description": "Description of the error" }
+            ]
+        },
+
 	"healthcheck": {
 	    "fields": [
                 { "name": "status", "type": "string", "example": "healthy" }
@@ -62,7 +95,81 @@
 
     "resources": {
 
-	"healthcheck": {
+	"test": {
+            "operations": [
+		{
+		    "method": "GET",
+		    "description": "Fetch a specific test by guid",
+		    "path": "/:guid",
+                    "responses": {
+                        "200": { "type": "test" },
+                        "404": { "type": "unit" }
+                    }
+		},
+
+                {
+                    "method": "GET",
+		    "description": "Returns a paginated list of all of the tests",
+		    "parameters": [
+			{ "name": "guid", "type": "uuid", "required": false, "description": "Filter to tests matching this guid" },
+			{ "name": "name", "type": "string", "required": false, "description": "Filter to tests matching this name - case insensitive, partial match" },
+			{ "name": "limit", "type": "long", "default": 25, "description": "The number of records to return", "minimum": 0, "maximum": 100 },
+                        { "name": "offset", "type": "long", "default": 0, "description": "Used to paginate. First page of results has offset 0.", "minimum": 0 }
+		    ],
+                    "responses": {
+                        "200": { "type": "[test]" }
+                    }
+                },
+
+		{
+		    "method": "POST",
+		    "description": "Create a new test",
+		    "body": { "type": "test_create_form" },
+		    "responses": {
+			"201": { "type": "test" },
+			"409": { "type": "[error]" }
+                    }
+		},
+
+		{
+		    "method": "PATCH",
+		    "path": "/:guid",
+		    "description": "Update a test",
+		    "body": { "type": "test_update_form" },
+		    "responses": {
+			"201": { "type": "test" },
+			"409": { "type": "[error]" }
+                    }
+		},
+
+		{
+		    "method": "DELETE",
+		    "path": "/:guid",
+		    "description": "Deletes a specific test."
+		}
+		    
+	    ]
+	},
+
+	"variant": {
+	    "operations": [
+		{
+		    "method": "GET",
+		    "description": "Returns a paginated list of all of the variants",
+		    "parameters": [
+			{ "name": "id", "type": "string", "required": false, "description": "Filter to variants that are live for this specific id. Typically the id will be a user id or a session id", "example": "c2a6a83b-1ff8-4e0e-a9d1-7e8e41790305 or 1238123" },
+			{ "name": "time", "type": "date-time-iso8601", "required": false, "description": "Filter to variants that are live at this particular moment in time. Defaults to now" },
+			{ "name": "limit", "type": "long", "default": 25, "description": "The number of records to return", "minimum": 0, "maximum": 100 },
+                        { "name": "offset", "type": "long", "default": 0, "description": "Used to paginate. First page of results has offset 0.", "minimum": 0 }
+		    ],
+                    "responses": {
+                        "200": { "type": "[variant]" }
+                    }
+                }
+	    ]
+	},
+
+        "healthcheck": {
 	    "path": "/_internal_/healthcheck",
             "operations": [
                 {
