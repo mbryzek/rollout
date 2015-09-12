@@ -22,25 +22,62 @@ Complete documentation online at [apidoc](http://www.apidoc.me/bryzek/rollout/la
       -d {
         "name": "my test",
         "variants": [
- 		  { "name": "test", "percentage": 50 },
-		  { "name": "control", "percentage": 100 }
+          { "name": "test", "percentage": 50 },
+          { "name": "control", "percentage": 100 }
         ]
       } \      
-      http://local	host/tests
+      http://localhost/tests
 
 **Update variants for a test**
 
     curl -X PATCH \
       -d {
         "variants": [
-		  { "name": "a", "percentage": 10 },
-		  { "name": "b", "percentage": 30 },
-		  { "name": "c", "percentage": 60 }
+          { "name": "a", "percentage": 10 },
+          { "name": "b", "percentage": 30 },
+          { "name": "c", "percentage": 60 }
         ]
       } \
       http://localhost/tests/<guid>
 
 Note that the updates are implemented as copy on edit. The API exposes allocations as a way to see all of the variants and when each set of variants went live (or was ended).
+
+PATCH is most useful for incremental rollout - e.g. as you rollout a
+particular feature to a wider (or smaller!) audience, you can PATCH
+the allocations. Internally the service will keep track of exactly
+when each change in allocation occurs, enabling future reporting.
+
+**Rollout to only your group**
+
+This API also supports the ability to override the random functions to enable the rollout of a particular feature to your group. The first step is to create group.
+
+    curl -X POST \
+      -d {
+         "key": "engineering"
+      } \
+      http://localhost/groups
+
+Then add any ids to the group
+
+    curl -X POST \
+      -d {
+         "key": "engineering",
+         "id": "c2a6a83b-1ff8-4e0e-a9d1-7e8e41790305"
+      } \
+      http://localhost/memberships
+
+Now create your test with an allocation for your group
+
+    curl -X POST \
+      -d {
+        "name": "my test",
+        "variants": [
+          { "name": "test", "percentage": 100, "groups": ["engineering"] }
+        ]
+      } \      
+      http://localhost/tests
+
+This will mean that only ids that are in the "engineering" group will qualify for this variant.
 
 **Get variants**
 

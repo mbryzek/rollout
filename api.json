@@ -59,7 +59,8 @@
 	    "description": "An individual test variant, mapping a name to a percentage of traffic",
 	    "fields": [
                 { "name": "name", "type": "string", "description": "A human readable name for this variant. The name must be unique within the context of a given test allocation. Uniqueness is case insensitive.", "example": "control" },
-                { "name": "percentage", "type": "integer", "minimum": 1, "maximum": 100 }
+                { "name": "percentage", "type": "integer", "minimum": 1, "maximum": 100 },
+		{ "name": "groups", "type": "[string]", "required": false, "example": "[engineering]", "description": "optionally require that the id be part of this group in order to qualify for this test variant." }
 	    ]
 	},
 
@@ -68,6 +69,36 @@
 	    "fields": [
 		{ "name": "test", "type": "reference", "description": "The test to which this specific variant belongs" },
 		{ "name": "name", "type": "string", "description": "The name of the specific variant" }
+	    ]
+	},
+
+	"group": {
+	    "description": "A simple collection of ids that can be used to release tests only to very specific requests. This is often useful for teams that would like to first release a feature to themselves prior to starting an AB test or enabling an incremental rollout for users",
+	    "fields": [
+		{ "name": "guid", "type": "uuid" },
+		{ "name": "key", "type": "string", "description": "A unique (case insensitive) key to identify this group", "example": "engineering" }
+	    ]
+	},
+
+	"group_form": {
+	    "fields": [
+		{ "name": "key", "type": "string" }
+	    ]
+	},
+
+	"membership": {
+	    "description": "Represents a single ID that is part of a group",
+	    "fields": [
+		{ "name": "guid", "type": "uuid" },
+		{ "name": "group", "type": "group" },
+		{ "name": "id", "type": "string", "example": "c2a6a83b-1ff8-4e0e-a9d1-7e8e41790305 or 1238123" }
+	    ]
+	},
+
+	"membership_form": {
+	    "fields": [
+		{ "name": "group_key", "type": "string", "example": "engineering" },
+		{ "name": "id", "type": "string", "example": "c2a6a83b-1ff8-4e0e-a9d1-7e8e41790305 or 1238123" }
 	    ]
 	},
 
@@ -169,7 +200,97 @@
 	    ]
 	},
 
-        "healthcheck": {
+        "group": {
+            "operations": [
+		{
+		    "method": "GET",
+		    "description": "Fetch a specific group by guid",
+		    "path": "/:guid",
+                    "responses": {
+                        "200": { "type": "group" },
+                        "404": { "type": "unit" }
+                    }
+		},
+
+                {
+                    "method": "GET",
+		    "description": "Returns a paginated list of all of the groups",
+		    "parameters": [
+			{ "name": "guid", "type": "uuid", "required": false, "description": "Filter to groups matching this guid" },
+			{ "name": "key", "type": "string", "required": false, "description": "Filter to groups matching this key - case insensitive, partial match" },
+			{ "name": "limit", "type": "long", "default": 25, "description": "The number of records to return", "minimum": 0, "maximum": 100 },
+                        { "name": "offset", "type": "long", "default": 0, "description": "Used to paginate. First page of results has offset 0.", "minimum": 0 }
+		    ],
+                    "responses": {
+                        "200": { "type": "[group]" }
+                    }
+                },
+
+		{
+		    "method": "POST",
+		    "description": "Create a new group",
+		    "body": { "type": "group_form" },
+		    "responses": {
+			"201": { "type": "group" },
+			"409": { "type": "[error]" }
+                    }
+		},
+
+		{
+		    "method": "DELETE",
+		    "path": "/:key",
+		    "description": "Deletes a specific group."
+		}
+	    ]
+	},
+
+	"membership": {
+            "operations": [
+		{
+		    "method": "GET",
+		    "description": "Fetch a specific membership by guid",
+		    "path": "/:guid",
+                    "responses": {
+                        "200": { "type": "membership" },
+                        "404": { "type": "unit" }
+                    }
+		},
+
+                {
+                    "method": "GET",
+		    "description": "Returns a paginated list of all of the memberships",
+		    "parameters": [
+			{ "name": "guid", "type": "string", "required": false, "description": "Filter to memberships matching this guid" },
+			{ "name": "group_guid", "type": "string", "required": false, "description": "Filter to memberships matching the group with this guid." },
+			{ "name": "group_key", "type": "string", "required": false, "description": "Filter to memberships matching the group with this key. Case insensitive. Exact match." },
+			{ "name": "id", "type": "string", "required": false, "description": "Filter to memberships for this id. Case insensitive. Exact match." },
+			{ "name": "limit", "type": "long", "default": 25, "description": "The number of records to return", "minimum": 0, "maximum": 100 },
+                        { "name": "offset", "type": "long", "default": 0, "description": "Used to paginate. First page of results has offset 0.", "minimum": 0 }
+		    ],
+                    "responses": {
+                        "200": { "type": "[membership]" }
+                    }
+                },
+
+		{
+		    "method": "POST",
+		    "description": "Create a new membership",
+		    "body": { "type": "membership_form" },
+		    "responses": {
+			"201": { "type": "membership" },
+			"409": { "type": "[error]" }
+                    }
+		},
+
+		{
+		    "method": "DELETE",
+		    "path": "/:guid",
+		    "description": "Deletes a specific membership."
+		}
+	    ]
+	},
+
+	"healthcheck": {
 	    "path": "/_internal_/healthcheck",
             "operations": [
                 {
