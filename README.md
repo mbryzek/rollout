@@ -82,3 +82,11 @@ downside is that you may take longer to reach significance, esp for features tha
 Reshuffling has to be random and equally distributed - used MurMur3 - back testing to verify distribution
 
 Key decision is what to use as the identifier - should be a string - device ID? User guid? other? From an API standpoint - just accept a string. The caller will determine what string to pass in.
+
+## Acknowledgements
+
+Many thanks to Young Moon who shared his experience building this sort
+of system for gilt. Young's work went live in 2014/2015 and was met
+with enthusiasm by the other engineers at gilt - i.e. he built a
+system that people loved to use. A lot of the API and work here is
+thanks to him.
