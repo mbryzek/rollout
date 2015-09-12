@@ -14,9 +14,7 @@ One of the constant challenges with these variations is the impact on reporting;
 
 ## api
 
-See [apidoc documentation](http://www.apidoc.me/bryzek/rollout/latest)
-
-## usage
+Complete documentation online at [apidoc](http://www.apidoc.me/bryzek/rollout/latest)
 
 **Create a test**
 
@@ -41,6 +39,25 @@ See [apidoc documentation](http://www.apidoc.me/bryzek/rollout/latest)
         ]
       } \
       http://localhost/tests/<guid>
+
+Note that the updates are implemented as copy on edit. The API exposes allocations as a way to see all of the variants and when each set of variants went live (or was ended).
+
+**Get variants**
+
+  - The default case will fetch all variants that are currently live for a particular ID
+ 
+        curl http://localhost/variants?id=<your id>
+
+    The id that you provide can be any string. Most common examples will be a session ID or a user ID. Be consistent and ensure that you will have the ability to access this ID later in reporting databases.
+
+
+  - Or you can provide your own timestamp to fetch the variants that were live for this ID at a specific point in time. This is most useful for reporting applications that would like to query what specific variants were live at a particular point in time (e.g. when an order was placed, when a user registered, etc.)
+ 
+        curl http://localhost/variants?id=<your id>&time=<timestamp>
+    
+    The timestamp will be iso8601 format.
+
+The call to variants will return a paginated list of all of the variants that currently match the filter criteria.
 
 
 ## Miscellaneous Notes
