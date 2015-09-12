@@ -57,7 +57,7 @@ Note that the updates are implemented as copy on edit. The API exposes allocatio
     
     The timestamp will be iso8601 format.
 
-The call to variants will return a paginated list of all of the variants that currently match the filter criteria.
+The call to variants will return a paginated list of all of the variants that currently match the filter criteria. Each variant will contain a reference to the test (the guid) and the name of the specific variant.
 
 
 ## Miscellaneous Notes
