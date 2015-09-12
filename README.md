@@ -22,20 +22,20 @@ Complete documentation online at [apidoc](http://www.apidoc.me/bryzek/rollout/la
       -d {
         "name": "my test",
         "variants": [
-	  { "name": "test", "percentage": 50 },
-	  { "name": "control", "percentage": 100 }
+ 		  { "name": "test", "percentage": 50 },
+		  { "name": "control", "percentage": 100 }
         ]
-      } \
-      http://localhost/tests
+      } \      
+      http://local	host/tests
 
 **Update variants for a test**
 
     curl -X PATCH \
       -d {
         "variants": [
-	  { "name": "a", "percentage": 10 },
-	  { "name": "b", "percentage": 30 },
-	  { "name": "c", "percentage": 60 }
+		  { "name": "a", "percentage": 10 },
+		  { "name": "b", "percentage": 30 },
+		  { "name": "c", "percentage": 60 }
         ]
       } \
       http://localhost/tests/<guid>
