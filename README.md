@@ -8,9 +8,9 @@ Design considerations for incremental feature rollout
 
   - Incremental rollout - feature is ready for users to interact with. Rollout the feature to 1% of traffic, then scale incrementally to 100%
 
-  - A/B testing - define unlimited number of test and control groups to gather data on a particular features
+  - A/B testing - define unlimited number of test and control groups to gather data on a particular features. For each of use, we choose to model smallest group as single integer percentages - this allows up to 100 variants per test, each with size 1%. In practice for AB testing, we rarely see a case with more than 3 variants.
 
-One of the constant challenges with these variations is the impact on reporting; e.g. if we cannot reliably report on the data, then we lose much of the value. In many cases we have observed distinct testing practices to access the information based on population segmentation.
+One of the constant challenges with these variations is the impact on reporting; e.g. if we cannot reliably report on the data, then we lose much of the value.
 
 ## api
 
