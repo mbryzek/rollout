@@ -105,7 +105,7 @@ Two major features for AB Testing:
 Population split: figure out a way to divide the population into buckets of some sort
 downside is that you may take longer to reach significance, esp for features that are only visible to specific users.
 
-  - Reporting: can access the AB testing service
+  - Reporting: can access this service. Case has been taken that we never lose data (copy on write) and key APIs (e.g. variant resource) accept an optional timestamp to enable access to what decisions were made at a particular point in time.
 
 ### General background for designing the test service
 
